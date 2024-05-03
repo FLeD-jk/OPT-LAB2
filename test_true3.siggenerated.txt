@@ -1,0 +1,49 @@
+data SEGMENT
+data ENDS
+code SEGMENT
+	ASSUME cs:code, ds:data	
+GHJHB5:
+	mov ax, 7654
+	mov bx, 156
+	jg ?L0
+	mov ax, ERTY4
+	mov bx, B156
+	lne ?L2
+?L4:
+	mov ax, RTH
+	mov bx, 456
+	jle ?L5
+	nop
+	jmp ?L4
+?L5:	nop
+	nop
+	jmp ?L3
+?L2:	nop
+	nop
+?L3:	nop
+	nop
+	jmp ?L1
+?L0:	nop
+?L6:
+	mov ax, RTH
+	mov bx, 456
+	jle ?L7
+	mov ax, ERTY4
+	mov bx, B156
+	lne ?L8
+	nop
+	jmp ?L9
+?L8:	nop
+	nop
+?L9:	nop
+	nop
+	jmp ?L6
+?L7:	nop
+	nop
+?L1:	nop
+	nop
+mov ah, 4ch
+int 21h
+code ends
+end GHJHB5
+
