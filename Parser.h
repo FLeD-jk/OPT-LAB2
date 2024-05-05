@@ -13,6 +13,8 @@ using namespace std;
 struct Tree_Node {
     int Code;
     string Name;
+    int Row;
+    int Column;
     string NonTerminal_name;
     bool Is_Terminal;
     Tree_Node* Right;
@@ -51,8 +53,8 @@ private:
     void Write_Tree(Tree_Node* Root, const string space, ofstream& outputFile);
     void Tree_Listing(string File);
     Tree_Node* Initialization_Tree();
-    Tree_Node* Add_New_Tree_Node(int code, string Name,  string Func, bool isterminal);
-    void Get_Error(string message);
+    Tree_Node* Add_New_Tree_Node(int code,int row, int column, string Name,  string Func, bool isterminal);
+
 
 
 public:

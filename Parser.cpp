@@ -20,6 +20,8 @@ Tree_Node* Parser::Initialization_Tree() {
 	Tree_Node* root = new Tree_Node;
 	root->Code = -1;
 	root->Down = NULL;
+	root->Row = 0;
+	root->Column = 0;
 	root->Is_Terminal = false;
 	root->Name = "";
 	root->Right = NULL;

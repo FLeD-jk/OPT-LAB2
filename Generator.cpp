@@ -1,16 +1,13 @@
 #include "Generator.h"
 
 
-void CodeGenerator::Start_code_generation(string File) {
+void Code_Generator::Start_code_generation(string File) {
 
 	program(Parse_tree);
-
-		Listing(File);
-		cout << "Code generation completed successfully" << endl;
-	
+	Code_Generation_Listing(File);	
 }
 
-CodeGenerator::CodeGenerator(Parser& object): Pos(0), Err(""), LabelCounter(0), Label(0), Parse_tree(object.Parse_tree)
+Code_Generator::Code_Generator(Parser& object): Error_String(""), Code_line_string(""), Label_Counter(0), Label(0), Parse_tree(object.Parse_tree)
 {
 
 }

@@ -19,10 +19,10 @@ void Lexer::Listing_Lexer(string File)
 			for (int j = ERR_BASE; j < Lex_Errors_Counter; j++)
 				if (Lexems[i].Code == j)
                     File_Output << "Lexer: Error " << Lexems[i].Code << "(Row " << Lexems[i].Row << ", Column " << Lexems[i].Column << "): ImLexem_Indexible characters combination: " << Lexems[i].Name << endl;
-
+    
+    cout << "Lexical analysis completed successfuly" << endl << endl;
     File_Output.close();
 }
-
 
 void Parser::Tree_Listing(string File) {
     TreeString = "";
@@ -50,18 +50,22 @@ void Parser::Write_Tree(Tree_Node* Root, const string space, ofstream& File_Outp
     }
 }
 
-
-void CodeGenerator::Listing(string File)
+void Code_Generator::Code_Generation_Listing(string File)
 {
-    File += "generated.txt";
-    ofstream f;
-    f.open(File, std::ios::app);
-    if (Err != "") {
-        cout << "Code Generator completed with error" << endl << Err << endl << endl;
-        f << "Code Generator completed with error" << endl << Err << endl;
+
+    File = "Code_Generation_Listing_" + File;
+    ofstream File_Output(File);
+
+    if (!Error_String.empty()) {
+        File_Output << Error_String << endl;
+        cout << "Error while generating code" << endl << endl;
     }
     else {
-        cout << "code generator completed successfuly" << endl << endl;
-        f << StrAsm << endl << endl;
+        cout << "Code generation completed successfuly" << endl << endl;
+        File_Output << Code_line_string << endl << endl;
     }
+
+    File_Output.close();
+
+
 }

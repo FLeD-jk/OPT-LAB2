@@ -1,222 +1,219 @@
 #include "Generator.h"
 
 
-
-
-void CodeGenerator::program(Tree_Node* Parser_Tree)
+void Code_Generator::program(Tree_Node* Parser_Tree)
 {
 	
 	Tree_Node* Current_Node = Parser_Tree;
-	ProgramName = Current_Node->Down->Down->Right->Down->Down->Name;
+	Name_of_Program = Current_Node->Down->Down->Right->Down->Down->Name;
 	Current_Node = Current_Node->Down->Down->Right->Right->Right->Down->Right;
 
-	StrAsm.append("data SEGMENT\ndata ENDS\n");
 	if (Current_Node->NonTerminal_name == "<statements-list>") {
-		StrAsm.append("code SEGMENT\n\tASSUME cs:code, ds:data\t\n" + ProgramName + ":\n");
-		statement_list(Current_Node);
-		StrAsm.append("mov ah, 4ch\nint 21h\ncode ends\nend " + ProgramName);
-	}
-	else {
-		//Error++;
-		//StrError += "Code Generator Eror: line " + to_string(Current_Node->Down) + " column " + to_string(Current_Node->Down) + "\n";
+		Code_line_string.append("code SEGMENT\n\tASSUME cs:code\t\n" + Name_of_Program + ":\n");
+		statements_list(Current_Node);
+		Code_line_string.append("mov ah, 4ch\nint 21h\ncode ends\nend " + Name_of_Program);
 		return;
-	}	
+	}
+
+	Error_String = "Code Generation Error: Row " + to_string(Current_Node->Row) + " column " + to_string(Current_Node->Column) + "\n";
+	return;
+
 }
 
-
-void CodeGenerator::statement_list(Tree_Node* Parser_Tree) {
+void Code_Generator::statements_list(Tree_Node* Parser_Tree) {
 	Tree_Node* Current_Node = Parser_Tree;
 	Current_Node = Current_Node->Down;
 	if (Current_Node ->NonTerminal_name == "<empty>") {
-		StrAsm.append("\tnop\n");
+		Code_line_string.append("\tnop\n");
 	}
 	if (Current_Node->NonTerminal_name == "<statement>") {
 		statement(Current_Node);
 		Current_Node = Current_Node->Right;
 		if (Current_Node->NonTerminal_name == "<statements-list>") {
-			statement_list(Current_Node);
-
+			statements_list(Current_Node);
 		}
-	}
-
-
-	
+	}	
 }
 
-void CodeGenerator::statement(Tree_Node* Parser_Tree) {
+void Code_Generator::statement(Tree_Node* Parser_Tree) {
 	Tree_Node* Current_Node = Parser_Tree;
 	Current_Node = Current_Node->Down;
 	if (Current_Node->Code == 405) {
-		Label = LabelCounter;
-		StrAsm.append("?L" + to_string(Label) + ":\n");
-		int whileLabel = Label;
+		Label = Label_Counter;
+		Code_line_string.append("?L" + to_string(Label) + ":\n");
+		int while_Label = Label;
 		Label++;
-		LabelCounter++;
+		Label_Counter++;
 		Current_Node = Current_Node->Right;
 		if (Current_Node->NonTerminal_name == "<conditional-expression>") {
 			conditional_expression(Current_Node);
 			Label++;
-			LabelCounter++;
+			Label_Counter++;
 			Current_Node = Current_Node->Right->Right;
 			if (Current_Node->NonTerminal_name == "<statements-list>") {
-				statement_list(Current_Node);
+				statements_list(Current_Node);
 				Current_Node = Current_Node->Right;
 				if (Current_Node->Code == 407) {
-					Label = whileLabel;
-					StrAsm.append("\tjmp ?L" + to_string(Label) + "\n");
+					Label = while_Label;
+					Code_line_string.append("\tjmp ?L" + to_string(Label) + "\n");
 					Label++;
-					StrAsm.append("?L" + to_string(Label) + ":\tnop\n");
+					Code_line_string.append("?L" + to_string(Label) + ":\tnop\n");
 				}
+			}
 		}
-	}
-
-
 	}
 	if (Current_Node->NonTerminal_name == "<conditionstatement>") {
 		  condition_statement(Current_Node);
 		}
-	/*
-	if (condition_statement(Current_Node)) {
-		Pos++;
-		if (Lexems[Pos].Code != 404) {
-			return;
-		}
-		Pos++;
-		if (Lexems[Pos].Code != ';') {
-			return;
-		}
-		return;
-	}
-	*/
+
 }
 
-
-
-void CodeGenerator::condition_statement(Tree_Node* Parser_Tree) {
+void Code_Generator::condition_statement(Tree_Node* Parser_Tree) {
 	Tree_Node* Current_Node = Parser_Tree;
 	Current_Node = Current_Node->Down;
-	int ifLabel = Label;
+	Label = Label_Counter;
+	int if_Label = Label;
 	if (Current_Node->NonTerminal_name == "<incompletecondition-statement>") {
 		incomplete_condition_statement(Current_Node);
-		Label = ifLabel;
-		StrAsm.append("?L" + to_string(Label) + ":\tnop\n");
+		Label = if_Label;
+		Code_line_string.append("?L" + to_string(Label) + ":\tnop\n");
 		Label++;
-		LabelCounter;
 		Current_Node = Current_Node->Right;
 		if (Current_Node->NonTerminal_name == "<alternativepart>") {
 			alternative_part(Current_Node);
-			StrAsm.append("?L" + to_string(Label) + ":\tnop\n");
+			Code_line_string.append("?L" + to_string(Label) + ":\tnop\n");
 		}
 	}
 }
 
-
-void CodeGenerator::incomplete_condition_statement(Tree_Node* Parser_Tree) {
+void Code_Generator::incomplete_condition_statement(Tree_Node* Parser_Tree) {
 	Tree_Node* Current_Node = Parser_Tree;
 	Current_Node = Current_Node->Down->Right;
 	if (Current_Node->NonTerminal_name == "<conditional-expression>") {
 		conditional_expression(Current_Node);
-		LabelCounter++;
+		Label_Counter++;
 		Label++;
-		int tempLabel = Label;
+		int inc_temp_Label = Label;
 		Label++;
-		LabelCounter++;
+		Label_Counter++;
 		Current_Node = Current_Node->Right->Right;
 		if (Current_Node->NonTerminal_name == "<statements-list>") {
-			statement_list(Current_Node);
-			tmp = Label;
-			Label = tempLabel;
-			StrAsm.append("\tjmp ?L" + to_string(Label) + "\n");
+			statements_list(Current_Node);
+			temp_label = Label_Counter;
+			Label = inc_temp_Label;
+			Code_line_string.append("\tjmp ?L" + to_string(Label) + "\n");
 		}
 		
 	}
 }
 
-void CodeGenerator::alternative_part(Tree_Node* Parser_Tree) {
+void Code_Generator::alternative_part(Tree_Node* Parser_Tree) {
 	Tree_Node* Current_Node = Parser_Tree;
 	Current_Node = Current_Node->Down;
 	if (Current_Node->NonTerminal_name == "<empty>") {
-		StrAsm.append("\tnop\n");
+		Code_line_string.append("\tnop\n");
 	}
 	else if( Current_Node->Code == 410) {
-		int tempLabel = Label;
-		Label = tmp;
+		int ap_temp_label = Label;
+		Label = temp_label;
 		Current_Node = Current_Node->Right;
-		if (Current_Node->NonTerminal_name == "<statements-list>") {
-			statement_list(Current_Node);
-			Label = tempLabel;
+		if (Current_Node->NonTerminal_name == "<statements-list>"){
+			statements_list(Current_Node);
+			Label = ap_temp_label;
 		}
 	}
 }
 
-
-void CodeGenerator::conditional_expression(Tree_Node* Parser_Tree){
+void Code_Generator::conditional_expression(Tree_Node* Parser_Tree){
 	Tree_Node* Current_Node = Parser_Tree;
 	Current_Node = Current_Node->Down;
 	if (Current_Node->NonTerminal_name == "<expression>" && Current_Node->Right->Right->NonTerminal_name == "<expression>") {
-				expression(Current_Node);
-				Current_Node = Current_Node->Right;
-				if (Current_Node->NonTerminal_name == "<comparison-operator>") {
-					comparison_operator(Current_Node);
-			}
-		}
-		}
-
-
-void CodeGenerator::comparison_operator(Tree_Node* Parser_Tree) {
-	Tree_Node* Current_Node = Parser_Tree;
-	Current_Node = Current_Node->Down;
-	if ((Current_Node->Name == "<") || (Current_Node->Name == "=") || (Current_Node->Name == ">") ||
-		(Current_Node->Code >= DM_BASE && Current_Node->Code < KW_BASE))
-	{
-		switch (Current_Node->Code)
-		{
-		case 60:
-			StrAsm.append("\tjge ?L" + to_string(Label) + "\n");
-			break;
-		case 61:
-			StrAsm.append("\tlne ?L" + to_string(Label) + "\n");
-			break;
-		case 62:
-			StrAsm.append("\tjle ?L" + to_string(Label) + "\n");
-			break;
-		case 301:
-			StrAsm.append("\tjg ?L" + to_string(Label) + "\n");
-			break;
-		case 302:
-			StrAsm.append("\tje ?L" + to_string(Label) + "\n");
-			break;
-		case 303:
-			StrAsm.append("\tjl ?L" + to_string(Label) + "\n");
-			break;
+		expression(Current_Node);
+		Current_Node = Current_Node->Right;
+		if (Current_Node->NonTerminal_name == "<comparison-operator>") {
+			comparison_operator(Current_Node);
 		}
 	}
 }
 
+void Code_Generator::comparison_operator(Tree_Node* Parser_Tree) {
+	Tree_Node* Current_Node = Parser_Tree;
+	Current_Node = Current_Node->Down;
+	int find = 0;
 
-void CodeGenerator::expression(Tree_Node* Parser_Tree) {
+	if (Current_Node->Name == "<")
+	{
+		Code_line_string.append("\tjge ?L" + to_string(Label) + "\n");
+		find = 1;
+	}
+	if (Current_Node->Name == "=")
+	{
+		Code_line_string.append("\tlne ?L" + to_string(Label) + "\n");
+		find = 1;
+	}
+	if (Current_Node->Name == ">")
+	{
+		Code_line_string.append("\tjle ?L" + to_string(Label) + "\n");
+		find = 1;
+	}
+	if (Current_Node->Name == "<=")
+	{
+		Code_line_string.append("\tjg ?L" + to_string(Label) + "\n");
+		find = 1;
+	}
+	if (Current_Node->Name == "<>")
+	{
+		Code_line_string.append("\tje ?L" + to_string(Label) + "\n");
+		find = 1;
+	}
+	if (Current_Node->Name == ">=")
+	{
+		Code_line_string.append("\tjl ?L" + to_string(Label) + "\n");
+		find = 1;
+	}
+	else if (find == 0) {
+		Error_String = "Error generate comparation operator : Row " + to_string(Current_Node->Row) + " column " + to_string(Current_Node->Column) + "\n";
+		exit(-1);
+	}
+}
+
+void Code_Generator::expression(Tree_Node* Parser_Tree) {
 	Tree_Node* Expression_Node_1 = Parser_Tree->Down;
 	Tree_Node* Expression_Node_2 = Parser_Tree->Right->Right->Down;
+
 	if (Expression_Node_1->NonTerminal_name == "<variable-identifier>" && Expression_Node_2->NonTerminal_name == "<variable-identifier>") {
-		if (Expression_Node_1->Name != ProgramName && Expression_Node_2->Name != ProgramName) {
-			StrAsm.append("\tmov ax, " + Expression_Node_1->Down->Down->Name + "\n");
-			StrAsm.append("\tmov bx, " + Expression_Node_2->Down->Down->Name + "\n");
+		if (Expression_Node_1->Down->Down->Name != Name_of_Program && Expression_Node_2->Down->Down->Name != Name_of_Program) {
+			Code_line_string.append("\tmov ax, " + Expression_Node_1->Down->Down->Name + "\n");
+			Code_line_string.append("\tmov bx, " + Expression_Node_2->Down->Down->Name + "\n");
+		}
+		else {
+			Error_String = "Error generate comparation operator : Row " + to_string(Expression_Node_1->Row) + " column " + to_string(Expression_Node_1->Column) + "\n";
+			return;
 		}
 	}
 	else if(Expression_Node_1->NonTerminal_name == "<unsigned-integer>" && Expression_Node_2->NonTerminal_name == "<unsigned-integer>") {
-			StrAsm.append("\tmov ax, " + Expression_Node_1->Down->Name + "\n");
-			StrAsm.append("\tmov bx, " + Expression_Node_2->Down->Name + "\n");
+		Code_line_string.append("\tmov ax, " + Expression_Node_1->Down->Name + "\n");
+		Code_line_string.append("\tmov bx, " + Expression_Node_2->Down->Name + "\n");
 		}
 	else if (Expression_Node_1->NonTerminal_name == "<variable-identifier>" && Expression_Node_2->NonTerminal_name == "<unsigned-integer>") {
-		if (Expression_Node_1->Name != ProgramName) {
-			StrAsm.append("\tmov ax, " + Expression_Node_1->Down->Down->Name + "\n");
-			StrAsm.append("\tmov bx, " + Expression_Node_2->Down->Name + "\n");
+		if (Expression_Node_1->Down->Down->Name != Name_of_Program) {
+			Code_line_string.append("\tmov ax, " + Expression_Node_1->Down->Down->Name + "\n");
+			Code_line_string.append("\tmov bx, " + Expression_Node_2->Down->Name + "\n");
+		}
+		else {
+			Error_String = "Error generate comparation operator : Row " + to_string(Expression_Node_1->Row) + " column " + to_string(Expression_Node_1->Column) + "\n";
+			return;
 		}
 	}
-	else if (Expression_Node_1->NonTerminal_name == "<variable-identifier>" && Expression_Node_2->NonTerminal_name == "<unsigned-integer>") {
-		if (Expression_Node_2->Name != ProgramName) {
-			StrAsm.append("\tmov ax, " + Expression_Node_1->Down->Name + "\n");
-			StrAsm.append("\tmov bx, " + Expression_Node_2->Down->Down->Name + "\n");
+	else if (Expression_Node_1->NonTerminal_name == "<unsigned-integer>" && Expression_Node_2->NonTerminal_name == "<variable-identifier>") {
+		if (Expression_Node_2->Down->Down->Name != Name_of_Program) {
+			Code_line_string.append("\tmov ax, " + Expression_Node_1->Down->Name + "\n");
+			Code_line_string.append("\tmov bx, " + Expression_Node_2->Down->Down->Name + "\n");
 		}
+		else {
+			Error_String = "Error generate comparation operator : Row " + to_string(Expression_Node_2->Row) + " column " + to_string(Expression_Node_2->Column) + "\n";
+			return;
+		}
+
 	}
 }

@@ -12,7 +12,7 @@ int main()
 	Lab1.Start_lex_analysis(filename);
 	Parser RGR(Lab1);
 	RGR.Start_syntax_analysis(filename);
-	CodeGenerator Lab2(RGR);
+	Code_Generator Lab2(RGR);
 	Lab2.Start_code_generation(filename);
 
 	return 0;
