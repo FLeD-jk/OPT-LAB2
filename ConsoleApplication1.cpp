@@ -7,7 +7,7 @@ using namespace std;
 
 int main()
 {
-	string filename = "test_true3.sig";
+	string filename = "test_false4.sig";
 	Lexer Lab1;
 	Lab1.Start_lex_analysis(filename);
 	Parser RGR(Lab1);

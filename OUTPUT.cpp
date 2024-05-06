@@ -57,8 +57,10 @@ void Code_Generator::Code_Generation_Listing(string File)
     ofstream File_Output(File);
 
     if (!Error_String.empty()) {
+        File_Output << Code_line_string << endl << endl;
         File_Output << Error_String << endl;
         cout << "Error while generating code" << endl << endl;
+
     }
     else {
         cout << "Code generation completed successfuly" << endl << endl;

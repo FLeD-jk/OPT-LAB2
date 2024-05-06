@@ -99,7 +99,7 @@ void Code_Generator::incomplete_condition_statement(Tree_Node* Parser_Tree) {
 		Current_Node = Current_Node->Right->Right;
 		if (Current_Node->NonTerminal_name == "<statements-list>") {
 			statements_list(Current_Node);
-			temp_label = Label_Counter;
+			//temp_label = Label_Counter;
 			Label = inc_temp_Label;
 			Code_line_string.append("\tjmp ?L" + to_string(Label) + "\n");
 		}
@@ -115,7 +115,8 @@ void Code_Generator::alternative_part(Tree_Node* Parser_Tree) {
 	}
 	else if( Current_Node->Code == 410) {
 		int ap_temp_label = Label;
-		Label = temp_label;
+		//Label = temp_label;
+		Label = Label_Counter;
 		Current_Node = Current_Node->Right;
 		if (Current_Node->NonTerminal_name == "<statements-list>"){
 			statements_list(Current_Node);
@@ -185,8 +186,10 @@ void Code_Generator::expression(Tree_Node* Parser_Tree) {
 		if (Expression_Node_1->Down->Down->Name != Name_of_Program && Expression_Node_2->Down->Down->Name != Name_of_Program) {
 			Code_line_string.append("\tmov ax, " + Expression_Node_1->Down->Down->Name + "\n");
 			Code_line_string.append("\tmov bx, " + Expression_Node_2->Down->Down->Name + "\n");
+			Code_line_string.append("\tcmp ax, bx\n");
 		}
 		else {
+			Code_line_string.append("\terror: <variable-identifier> can`t equal name of program \n");
 			Error_String = "Error generate comparation operator : Row " + to_string(Expression_Node_1->Row) + " column " + to_string(Expression_Node_1->Column) + "\n";
 			return;
 		}
@@ -194,13 +197,16 @@ void Code_Generator::expression(Tree_Node* Parser_Tree) {
 	else if(Expression_Node_1->NonTerminal_name == "<unsigned-integer>" && Expression_Node_2->NonTerminal_name == "<unsigned-integer>") {
 		Code_line_string.append("\tmov ax, " + Expression_Node_1->Down->Name + "\n");
 		Code_line_string.append("\tmov bx, " + Expression_Node_2->Down->Name + "\n");
+		Code_line_string.append("\tcmp ax, bx\n");
 		}
 	else if (Expression_Node_1->NonTerminal_name == "<variable-identifier>" && Expression_Node_2->NonTerminal_name == "<unsigned-integer>") {
 		if (Expression_Node_1->Down->Down->Name != Name_of_Program) {
 			Code_line_string.append("\tmov ax, " + Expression_Node_1->Down->Down->Name + "\n");
 			Code_line_string.append("\tmov bx, " + Expression_Node_2->Down->Name + "\n");
+			Code_line_string.append("\tcmp ax, bx\n");
 		}
 		else {
+			Code_line_string.append("\terror: <variable-identifier> can`t equal name of program \n");
 			Error_String = "Error generate comparation operator : Row " + to_string(Expression_Node_1->Row) + " column " + to_string(Expression_Node_1->Column) + "\n";
 			return;
 		}
@@ -209,8 +215,10 @@ void Code_Generator::expression(Tree_Node* Parser_Tree) {
 		if (Expression_Node_2->Down->Down->Name != Name_of_Program) {
 			Code_line_string.append("\tmov ax, " + Expression_Node_1->Down->Name + "\n");
 			Code_line_string.append("\tmov bx, " + Expression_Node_2->Down->Down->Name + "\n");
+			Code_line_string.append("\tcmp ax, bx\n");
 		}
 		else {
+			Code_line_string.append("\terror: <variable-identifier> can`t equal name of program \n");
 			Error_String = "Error generate comparation operator : Row " + to_string(Expression_Node_2->Row) + " column " + to_string(Expression_Node_2->Column) + "\n";
 			return;
 		}

@@ -9,13 +9,12 @@
 
 class Code_Generator {
 private:
-	vector<Token> Lexems;
+	Tree_Node* Parse_tree;
 	string Code_line_string;
 	string Error_String;
 	int Label;
 	int Label_Counter;
 	int temp_label;
-	Tree_Node* Parse_tree;
 	string Name_of_Program;
 	void Code_Generation_Listing(string File);
 	void program(Tree_Node* Parser_Tree);
